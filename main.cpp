@@ -10,8 +10,8 @@ using namespace std;
 // need to find the m = (n choose 2) amount of closest pairs
 
 // Finds the M amount of closest pairs in set p
-map<pair<int, double>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
-  map<pair<int, double>, vector<int>> ans; // Should be format of <pair#, x1,y1,x2,y2>
+map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
+  map<pair<double, int>, vector<int>> ans; // Should be format of <pair#, x1,y1,x2,y2>
 
   // If there is no points or only one point in the set P, then there are no shortest pairs.
   if(p.size() == 0 || p.size() == 1){
@@ -42,23 +42,25 @@ map<pair<int, double>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
         xplusy = xsquared + ysquared;
         dist = sqrt(xplusy);
 
-        cout << x1 << y1 << " | " << x2 << y2 << "\n";
-        cout << "distance: " << dist << "\n";
+        //cout << x1 << y1 << " | " << x2 << y2 << "\n";
+        //cout << "distance: " << dist << "\n";
 
         ansSize = ans.size();
-        ans.insert(pair<pair<int, double>, vector<int>>(pair<int,double>(ansSize, dist), vector<int>()));
-        ans[pair<int,double>(ansSize, dist)].push_back(x1);
-        ans[pair<int,double>(ansSize, dist)].push_back(y1);
-        ans[pair<int,double>(ansSize, dist)].push_back(x2);
-        ans[pair<int,double>(ansSize, dist)].push_back(y2);
+        // Inserts the number of the pair (ansSize), the Euclidean distance, and the list of vertices in the pair. Format is: <<dist, pair#>,x1,y1,x2,y2>
+        ans.insert(pair<pair<double, int>, vector<int>>(pair<double, int>(dist, ansSize), vector<int>()));
+        ans[pair<double, int>(dist, ansSize)].push_back(x1);
+        ans[pair<double, int>(dist, ansSize)].push_back(y1);
+        ans[pair<double, int>(dist, ansSize)].push_back(x2);
+        ans[pair<double, int>(dist, ansSize)].push_back(y2);
 
 
       }
     }
 
-    for(map<pair<int, double>, vector<int>>::iterator it = ans.begin(); it != ans.end(); it++){
+    // Prints out the format that the information is entered into the mapping. It keeps track of M, printing out only until that number has been reached.
+    for(map<pair<double, int>, vector<int>>::iterator it = ans.begin(); it != ans.end(); it++){
       if(m > 0){
-        cout << "Pair " << it->first.first << "\nDistance: " << it->first.second << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1); ;
+        cout << "Distance " << it->first.first << "\nPair: " << it->first.second +1 << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1) << ")\n(x2,y2): (" << it->second.at(2) << "," << it->second.at(3) <<")\n\n";
         m--;
       }
       else if(m == 0){
@@ -112,6 +114,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
 
         cout << "Enter M: ";
         cin >> m_input;
+        // Checks that m_input is an integer. If it is not, go back to main menu. If it is, continue checking if it is a valid possible M.
         try{
           stoi(m_input);
           if(stoi(m_input) >= 0 && stoi(m_input) <= nchoose2){
@@ -121,6 +124,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
             printMenu();
             cin >> input;
           }
+          // If it reaches here, that means M is either negative or is larger than the possible amount of pairs of points.
           else if(stoi(m_input) < 0){
             cout << "\nPlease enter a nonnegative integer.\n";
             printMenu();
@@ -139,6 +143,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
         }
       }
 
+      // Adding a point to the set p
       if(stoi(input) == 1){
         string x;
         string y;
@@ -147,6 +152,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
         cout << "Enter y value: ";
         cin >> y;
 
+        // Checks that x and y are integers. If they are not, go back to the main menu. Else, add them repectively to the set with the format <point#, <x1,y1>>
         try{
           stoi(x);
           stoi(y);
@@ -179,18 +185,6 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
         break;
       }
     }
-    else if(stoi(input) == 4){
-      for(map<int,vector<int>>::iterator it = p.begin(); it != p.end(); it++){
-        cout << "Point " << it->first + 1 << ":" ;
-        for(int i = 0; i < it->second.size(); i++){
-          cout << it->second.at(i) << ",";
-        }
-        cout << "\n";
-      }
-      cout << "\n";
-      printMenu();
-      cin >> input;
-    }
     // If input option is any integer other than '1', '2', or '3'
     else{
       cout << "\nInvalid option. Please enter '1', '2', or '3'\n";
@@ -201,7 +195,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
   }
 }
 
-main(){
+int main(){
     // set P has n=4 points
 
     string input;
@@ -218,6 +212,5 @@ main(){
     cout << "Number of pairs in P: " << p.size() << "\n";
     closestPairs(m, p);
 
-    int pe[n][2] = {{1,2}, {4,5}, {7,11}, {4,8}};
-
+    return 0;
 }

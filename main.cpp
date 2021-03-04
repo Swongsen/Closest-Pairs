@@ -3,9 +3,9 @@
 #include <cmath>
 #include <string>
 #include <map>
+#include <time.h>
 
 using namespace std;
-#define n 4 // number of points
 
 // need to find the m = (n choose 2) amount of closest pairs
 
@@ -15,7 +15,7 @@ map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
 
   // If there is no points or only one point in the set P, then there are no shortest pairs.
   if(p.size() == 0 || p.size() == 1){
-    cout << "0 Pairs";
+    cout << "\n0 possible pairs.";
   }
   else if(p.size() >= 2){
     // Variables used in calculating the distance between two points
@@ -56,12 +56,13 @@ map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
 
       }
     }
-
+    int pairnum = 1;
     // Prints out the format that the information is entered into the mapping. It keeps track of M, printing out only until that number has been reached.
     for(map<pair<double, int>, vector<int>>::iterator it = ans.begin(); it != ans.end(); it++){
       if(m > 0){
-        cout << "Distance " << it->first.first << "\nPair: " << it->first.second +1 << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1) << ")\n(x2,y2): (" << it->second.at(2) << "," << it->second.at(3) <<")\n\n";
+        cout << "\nPair: " << pairnum << "\nDistance " << it->first.first << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1) << ")\n(x2,y2): (" << it->second.at(2) << "," << it->second.at(3) <<")\n\n";
         m--;
+        pairnum++;
       }
       else if(m == 0){
         break;
@@ -75,7 +76,7 @@ map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
 
 // Prints option menu
 void printMenu(){
-    cout << "Select option: " << "\n1. Insert pair \n2. Enter 'M'\n3. Find M closest pairs\n";
+    cout << "Select option: " << "\n1. Insert pair \n2. Generate n pairs \n3. Enter 'M'\n4. Find M closest pairs\n";
 }
 
 // Error checking for initial input to enter a pair or m value.
@@ -88,28 +89,26 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
         break;
       }
       catch(invalid_argument s){
-        cout << "\nInvalid option. Please enter '1', '2', or '3'\n";
+        cout << "\nInvalid option. Please enter '1', '2', '3', or '4'\n";
         printMenu();
         cin >> input;
       }
     }
 
     // If the input is 1 or 2
-    if(stoi(input) == 1 || stoi(input) == 2){
+    if(stoi(input) == 1 || stoi(input) == 2 || stoi(input) == 3){
       // Check if input to M is an nonnegative integer less than or equal to (n choose 2) pairs of points in P.
-      if(stoi(input) == 2){
+      if(stoi(input) == 3){
         // Variable for checking that M is less than or equal to this.
-        int nchoose2;
+        int nchoose2 = 1;
         int numerator = 1;
         int denominator = 1;
-        for(int i = p.size(); i > 0; i--){
-          numerator = numerator * i;
+
+        // just subtract 2 off the size because nchoose2 is just -2 from numerator over the denominator. then divide by 2 again.
+        for(int i = p.size(); i > p.size()-2; i--){
+          nchoose2 = i * nchoose2;
         }
-        for(int i = p.size()-2; i > 0; i--){
-          denominator = denominator * i;
-        }
-        denominator = denominator * 2;
-        nchoose2 = numerator / denominator;
+        nchoose2 = nchoose2 / 2;
         //cout << "nchoose2: " << nchoose2 << "\n";
 
         cout << "Enter M: ";
@@ -126,7 +125,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
           }
           // If it reaches here, that means M is either negative or is larger than the possible amount of pairs of points.
           else if(stoi(m_input) < 0){
-            cout << "\nPlease enter a nonnegative integer.\n";
+            cout << "\nPlease enter an nonnegative integer.\n";
             printMenu();
             cin >> input;
           }
@@ -137,7 +136,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
           }
         }
         catch(invalid_argument s){
-          cout << "\nPlease enter a nonnegative integer.\n";
+          cout << "\nPlease enter an nonnegative integer.\n";
           printMenu();
           cin >> input;
         }
@@ -173,9 +172,43 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
         }
       }
 
+      // Randomly generates n pairs of points
+      if(stoi(input) == 2){
+        string n_input;
+        int n;
+        cout << "Enter n value: ";
+        cin >> n_input;
+        try{
+          stoi(n_input);
+          n = stoi(n_input);
+          if(n < 0){
+            cout << "\nPlease enter an nonnegative integer.\n";
+            printMenu();
+            cin >> input;
+          }
+          else if(n >= 0){
+            srand(time(0));
+            for(int i = 0; i < n; i++){
+              int npairs = p.size();
+              p.insert(pair<int, vector<int>>(npairs, vector<int>()));
+              p[npairs].push_back(rand());
+              p[npairs].push_back(rand());
+            }
+            cout << "\nSuccessfully entered " << n << " pairs.\n";
+            printMenu();
+            cin >> input;
+          }
+        }
+        catch(invalid_argument s){
+          cout << "\nPlease enter integers only.\n";
+          printMenu();
+          cin >> input;
+        }
+      }
+
     }
     // This option exits out of the setUp function only if there has been a valid M set before.
-    else if(stoi(input) == 3){
+    else if(stoi(input) == 4){
       if(m_set == false){
         cout << "\nPlease set an M first\n";
         printMenu();
@@ -187,7 +220,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
     }
     // If input option is any integer other than '1', '2', or '3'
     else{
-      cout << "\nInvalid option. Please enter '1', '2', or '3'\n";
+      cout << "\nInvalid option. Please enter '1', '2', '3', or '4'\n";
       printMenu();
       cin >> input;
     }
@@ -207,9 +240,8 @@ int main(){
     printMenu();
     cin >> input;
     setUp(input, m_input, m, m_set, p);
-
-    cout << "Finding the M=" << m << " closest pairs of points in P.\n";
-    cout << "Number of pairs in P: " << p.size() << "\n";
+    //cout << "Finding the M=" << m << " closest pairs of points in P.\n";
+    //cout << "Number of pairs in P: " << p.size() << "\n";
     closestPairs(m, p);
 
     return 0;

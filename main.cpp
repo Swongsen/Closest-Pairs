@@ -4,18 +4,26 @@
 #include <string>
 #include <map>
 #include <time.h>
+#include <fstream>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 // need to find the m = (n choose 2) amount of closest pairs
 
 // Finds the M amount of closest pairs in set p
-map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
+map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p, ofstream &output){
+  auto start = high_resolution_clock::now();
   map<pair<double, int>, vector<int>> ans; // Should be format of <pair#, x1,y1,x2,y2>
 
   // If there is no points or only one point in the set P, then there are no shortest pairs.
   if(p.size() == 0 || p.size() == 1){
     cout << "\n0 possible pairs.";
+    output << "\n 0 possible pairs.";
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop-start);
+    cout << "Runtime: " << duration.count() << "ms";
   }
   else if(p.size() >= 2){
     // Variables used in calculating the distance between two points
@@ -56,15 +64,19 @@ map<pair<double, int>, vector<int>> closestPairs(int m, map<int,vector<int>> p){
 
       }
     }
-    int pairnum = 1;
+    int pairnumber = 1;
     // Prints out the format that the information is entered into the mapping. It keeps track of M, printing out only until that number has been reached.
     for(map<pair<double, int>, vector<int>>::iterator it = ans.begin(); it != ans.end(); it++){
       if(m > 0){
-        cout << "\nPair: " << pairnum << "\nDistance " << it->first.first << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1) << ")\n(x2,y2): (" << it->second.at(2) << "," << it->second.at(3) <<")\n\n";
+        cout << "\nPair: " << pairnumber << "\nDistance " << it->first.first << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1) << ")\n(x2,y2): (" << it->second.at(2) << "," << it->second.at(3) <<")\n\n";
+        output << "\nPair: " << pairnumber << "\nDistance " << it->first.first << "\n(x1,y1): (" << it->second.at(0) << "," << it->second.at(1) << ")\n(x2,y2): (" << it->second.at(2) << "," << it->second.at(3) <<")\n\n";
         m--;
-        pairnum++;
+        pairnumber++;
       }
       else if(m == 0){
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(stop-start);
+        cout << "Runtime: " << duration.count() << "ms";
         break;
       }
     }
@@ -230,7 +242,7 @@ void setUp(string input, string m_input, int &m, bool &m_set, map<int,vector<int
 
 int main(){
     // set P has n=4 points
-
+    ofstream output("output.txt");
     string input;
     string m_input;
     int m = 0;
@@ -242,7 +254,7 @@ int main(){
     setUp(input, m_input, m, m_set, p);
     //cout << "Finding the M=" << m << " closest pairs of points in P.\n";
     //cout << "Number of pairs in P: " << p.size() << "\n";
-    closestPairs(m, p);
+    closestPairs(m, p, output);
 
     return 0;
 }
